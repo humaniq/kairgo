@@ -1,6 +1,9 @@
 language: go
 go: 1.8
 
+before_install:
+  - mkdir -p /opt/vexor/packages/go-1.8/global/src
+
 install:
   - go get -u github.com/kardianos/govendor
   - govendor sync
