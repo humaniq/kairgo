@@ -95,7 +95,7 @@ func Test_ViewGallery_Fail(t *testing.T) {
 	status := responseGallery.Status
 
 	if status != "" {
-		t.Errorf("Expected '%s', but actual: '%s'", "Complete", status)
+		t.Errorf("Expected '%s', but actual: '%s'", "", status)
 	}
 
 	errorsCount := len(responseGallery.Errors)
