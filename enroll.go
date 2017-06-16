@@ -37,7 +37,7 @@ type ResponseEnroll struct {
 	} `json:"images"`
 }
 
-// Enroll an image
+// Enroll takes a photo, finds the faces within it, and stores the faces into a gallery you create.
 func (k *Kairos) Enroll(image, subjectID, galleryName, minHeadScale string, multipleFaces bool) (*ResponseEnroll, error) {
 	p := map[string]interface{}{
 		"image":        image,

@@ -13,7 +13,7 @@ type ResponseGallery struct {
 	SubjectIDs  []string `json:"subject_ids"`
 }
 
-// ViewGallery ...
+// ViewGallery lists out all of the faces you have enrolled in a gallery.
 func (k *Kairos) ViewGallery(galleryName string) (*ResponseGallery, error) {
 	if galleryName == "" {
 		return nil, fmt.Errorf("galleryName: should be present")

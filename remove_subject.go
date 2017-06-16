@@ -29,7 +29,7 @@ type ResponseRemoveSubject struct {
 	Message     string  `json:"message"`
 }
 
-// RemoveSubject ...
+// RemoveSubject removes a face you have enrolled within a gallery.
 func (k *Kairos) RemoveSubject(removeSubjectRequest *RemoveSubjectRequest) (*ResponseRemoveSubject, error) {
 	_, err := removeSubjectRequest.IsValid()
 	if err != nil {

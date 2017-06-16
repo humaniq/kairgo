@@ -12,7 +12,7 @@ type ResponseRemoveGallery struct {
 	Message     string  `json:"message"`
 }
 
-// RemoveGallery ...
+// RemoveGallery removes a gallery and all of its subjects.
 func (k *Kairos) RemoveGallery(galleryName string) (*ResponseRemoveGallery, error) {
 	if galleryName == "" {
 		return nil, fmt.Errorf("galleryName: should be present")

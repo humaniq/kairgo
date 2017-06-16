@@ -15,7 +15,10 @@ type ResponseSubject struct {
 	} `json:"message"`
 }
 
-// ViewSubject ...
+// ViewSubject displays all face id's and enrollment timestamps
+// for each template you have enrolled from a given galleryName and subjectId.
+//   galleryName string - Defined by you. Is used to identify the gallery.
+//   subjectId   string - Defined by you. Is used as an identifier for the face.
 func (k *Kairos) ViewSubject(galleryName, subjectId string) (*ResponseSubject, error) {
 	if galleryName == "" {
 		return nil, fmt.Errorf("%s: should be required", "galleryName")
