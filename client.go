@@ -111,3 +111,22 @@ func (k *Kairos) do(req *http.Request) ([]byte, error) {
 
 	return b, nil
 }
+
+func (k *Kairos) makeRequest(method, path string, params map[string]interface{}) ([]byte, error) {
+	b, mErr := json.Marshal(params)
+	if mErr != nil {
+		return nil, mErr
+	}
+
+	req, reqErr := k.newRequest(method, path, b)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+
+	resp, doErr := k.do(req)
+	if doErr != nil {
+		return nil, doErr
+	}
+
+	return resp, nil
+}

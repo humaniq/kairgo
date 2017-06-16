@@ -1,7 +1,10 @@
 package kairgo_test
 
 import (
+	"encoding/json"
 	"github.com/humaniq/kairgo"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -42,4 +45,28 @@ func testMethod(t *testing.T, r *http.Request, expected string) {
 
 func NewClient(baseUrl string) (*kairgo.Kairos, error) {
 	return kairgo.New(baseUrl, APP_ID, APP_KEY, nil)
+}
+
+func requestBody(rawBody io.ReadCloser) (map[string]interface{}, error) {
+	body := make(map[string]interface{})
+
+	b, rErr := ioutil.ReadAll(rawBody)
+	if rErr != nil {
+		return nil, rErr
+	}
+
+	uErr := json.Unmarshal(b, &body)
+	if uErr != nil {
+		return nil, rErr
+	}
+	return body, nil
+}
+
+func makeResponse(w http.ResponseWriter, fixturePath string) error {
+	b, err := ioutil.ReadFile("fixtures/" + fixturePath)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(b)
+	return err
 }
