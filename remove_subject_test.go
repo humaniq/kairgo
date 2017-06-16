@@ -54,7 +54,7 @@ func handleFuncRemoveSubject(t *testing.T) func(w http.ResponseWriter, r *http.R
 			t.Error(rErr)
 		}
 
-		if successRequest(body) {
+		if successSubjectRequest(body) {
 			_, ok := body["face_id"]
 			if ok {
 				fmt.Fprint(w, removeSubjectWithFaceSuccess)
@@ -68,7 +68,7 @@ func handleFuncRemoveSubject(t *testing.T) func(w http.ResponseWriter, r *http.R
 	}
 }
 
-func successRequest(body map[string]interface{}) bool {
+func successSubjectRequest(body map[string]interface{}) bool {
 	return (body["gallery_name"] == removeSubjectExistName &&
 		body["subject_id"] == removeSubjectExistID)
 }
