@@ -7,3 +7,6 @@ before_install:
 install:
   - go get -u github.com/kardianos/govendor
   - govendor sync
+
+script:
+  - go test -v
