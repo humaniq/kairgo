@@ -39,10 +39,11 @@ type ResponseEnroll struct {
 
 // Enroll an image
 func (k *Kairos) Enroll(image, subjectID, galleryName, minHeadScale string, multipleFaces bool) (*ResponseEnroll, error) {
-	p := make(map[string]interface{})
-	p["image"] = image
-	p["subject_id"] = subjectID
-	p["gallery_name"] = galleryName
+	p := map[string]interface{}{
+		"image":        image,
+		"subject_id":   subjectID,
+		"gallery_name": galleryName,
+	}
 
 	// optional parameters
 	if minHeadScale != "" {
@@ -53,19 +54,9 @@ func (k *Kairos) Enroll(image, subjectID, galleryName, minHeadScale string, mult
 		p["multiple_faces"] = multipleFaces
 	}
 
-	b, mErr := json.Marshal(p)
-	if mErr != nil {
-		return nil, mErr
-	}
-
-	req, reqErr := k.newRequest("POST", "enroll", b)
-	if reqErr != nil {
-		return nil, reqErr
-	}
-
-	resp, doErr := k.do(req)
-	if doErr != nil {
-		return nil, doErr
+	resp, err := k.makeRequest("POST", "enroll", p)
+	if err != nil {
+		return nil, err
 	}
 
 	re := &ResponseEnroll{}

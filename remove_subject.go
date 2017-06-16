@@ -45,19 +45,9 @@ func (k *Kairos) RemoveSubject(removeSubjectRequest *RemoveSubjectRequest) (*Res
 		p["face_id"] = removeSubjectRequest.FaceID
 	}
 
-	b, mErr := json.Marshal(p)
-	if mErr != nil {
-		return nil, mErr
-	}
-
-	req, reqErr := k.newRequest("POST", "gallery/remove_subject", b)
-	if reqErr != nil {
-		return nil, reqErr
-	}
-
-	resp, doErr := k.do(req)
-	if doErr != nil {
-		return nil, doErr
+	resp, err := k.makeRequest("POST", "gallery/remove_subject", p)
+	if err != nil {
+		return nil, err
 	}
 
 	re := &ResponseRemoveSubject{}
