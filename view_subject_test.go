@@ -42,6 +42,7 @@ func Test_ViewSubject(t *testing.T) {
 		galleryName  string
 		subjectID    string
 		status       string
+		facesCount   int
 		errorsCount  int
 		errCode      int
 		errorMessage string
@@ -50,6 +51,7 @@ func Test_ViewSubject(t *testing.T) {
 			galleryName:  "MyGallery",
 			subjectID:    "test1",
 			status:       "Complete",
+			facesCount:   5,
 			errorsCount:  0,
 			errCode:      0,
 			errorMessage: "",
@@ -58,6 +60,7 @@ func Test_ViewSubject(t *testing.T) {
 			galleryName:  "OtherGallery",
 			subjectID:    "test1",
 			status:       "",
+			facesCount:   0,
 			errorsCount:  1,
 			errCode:      5004,
 			errorMessage: "gallery name not found",
@@ -66,6 +69,7 @@ func Test_ViewSubject(t *testing.T) {
 			galleryName:  "MyGallery",
 			subjectID:    "test2",
 			status:       "",
+			facesCount:   0,
 			errorsCount:  1,
 			errCode:      5003,
 			errorMessage: "subject ID was not found",
@@ -80,6 +84,7 @@ func Test_ViewSubject(t *testing.T) {
 		}
 		assert.Equal(t, test.status, result.Status)
 		assert.Equal(t, test.errorsCount, len(result.Errors))
+		assert.Equal(t, test.facesCount, len(result.Faces))
 		if test.errorsCount > 0 {
 			assert.Equal(t, test.errCode, result.Errors[0].ErrCode)
 			assert.Equal(t, test.errorMessage, result.Errors[0].Message)
