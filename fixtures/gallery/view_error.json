@@ -1,0 +1,7 @@
+{
+    "Errors": [
+        {
+            "Message": "gallery name not found",
+            "ErrCode": 5004
+	      }]
+}

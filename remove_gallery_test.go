@@ -1,102 +1,80 @@
 package kairgo_test
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
-)
-
-const (
-	removeGalleryExistName = "MyGallery"
-	removeGalleryWrongName = "wrong_name"
-	removeGalleriesSuccess = `
-	{
-	    "status":"Complete",
-	    "message":"gallery MyGallery was removed"
-	}`
-
-	removeGalleriesError = `
-	{
-	    "Errors": [
-	    {
-		"Message": "gallery name not found",
-		"ErrCode": 5004
-	    }]
-	}
-`
 )
 
 func handleFuncRmGallery(t *testing.T) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
+		var responsePath string
 
 		defer r.Body.Close()
-		body := make(map[string]interface{})
-
-		b, rErr := ioutil.ReadAll(r.Body)
-		if rErr != nil {
-			t.Error(rErr)
+		body, err := requestBody(r.Body)
+		if err != nil {
+			t.Error(err)
+			return
 		}
 
-		uErr := json.Unmarshal(b, &body)
-		if uErr != nil {
-			t.Error(rErr)
+		switch {
+		case body["gallery_name"] != "MyGallery":
+			responsePath = "gallery/remove_error.json"
+		default:
+			responsePath = "gallery/remove.json"
 		}
 
-		if body["gallery_name"] == removeGalleryExistName {
-			fmt.Fprint(w, removeGalleriesSuccess)
-		} else {
-
-			fmt.Fprint(w, removeGalleriesError)
+		err = makeResponse(w, responsePath)
+		if err != nil {
+			t.Error(err)
 		}
 	}
 
 }
 
-func Test_RemoveGallery_Success(t *testing.T) {
+func Test_RemoveGallery(t *testing.T) {
 	setup()
 	defer teardown()
 
 	mux.HandleFunc("/gallery/remove", handleFuncRmGallery(t))
 
-	responseGallery, err := client.RemoveGallery(removeGalleryExistName)
-	if err != nil {
-		t.Error(err)
+	tests := []struct {
+		galleryName  string
+		subjectID    string
+		status       string
+		errorsCount  int
+		errCode      int
+		errorMessage string
+	}{
+		{
+			galleryName:  "MyGallery",
+			status:       "Complete",
+			errorsCount:  0,
+			errCode:      0,
+			errorMessage: "",
+		},
+		{
+			galleryName:  "WrongName",
+			status:       "",
+			errorsCount:  1,
+			errCode:      5004,
+			errorMessage: "gallery name not found",
+		},
 	}
 
-	status := responseGallery.Status
-
-	if status != "Complete" {
-		t.Errorf("Expected '%s', but actual: '%s'", "Complete", status)
+	for _, test := range tests {
+		result, err := client.RemoveGallery(test.galleryName)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		assert.Equal(t, test.status, result.Status)
+		assert.Equal(t, test.errorsCount, len(result.Errors))
+		if test.errorsCount > 0 {
+			assert.Equal(t, test.errCode, result.Errors[0].ErrCode)
+			assert.Equal(t, test.errorMessage, result.Errors[0].Message)
+		}
 	}
 
-	errorsCount := len(responseGallery.Errors)
-	if errorsCount != 0 {
-		t.Errorf("Expected %d, but actual: %d", 0, errorsCount)
-	}
-}
-
-func Test_RemoveGallery_Fail(t *testing.T) {
-	setup()
-	defer teardown()
-
-	mux.HandleFunc("/gallery/remove", handleFuncRmGallery(t))
-
-	responseGallery, err := client.RemoveGallery(removeGalleryWrongName)
-	if err != nil {
-		t.Error(err)
-	}
-
-	status := responseGallery.Status
-
-	if status != "" {
-		t.Errorf("Expected '%s', but actual: '%s'", "", status)
-	}
-
-	errorsCount := len(responseGallery.Errors)
-	if errorsCount == 0 {
-		t.Errorf("Expected %d, but actual: %d", 1, errorsCount)
-	}
 }

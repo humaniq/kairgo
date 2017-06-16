@@ -1,10 +1,8 @@
 package kairgo_test
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/humaniq/kairgo"
-	"io/ioutil"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
 )
@@ -13,57 +11,34 @@ const (
 	removeSubjectExistName = "MyGallery"
 	removeSubjectExistID   = "test1"
 	removeSubjectFaceId    = "58f9034743ab64939482"
-	removeSubjectSuccess   = `
-{
-    "status": "Complete",
-    "message": "subject id test1 has been successfully removed"
-}
-`
-	removeSubjectWithFaceSuccess = `
-{
-    "status": "Complete",
-    "message": "subject id test1 with face id 58f9034743ab64939482 has been successfully removed"
-}
-`
-
-	removeSubjectError = `
-{
-    "Errors": [
-    {
-        "Message": "gallery name not found",
-        "ErrCode": 5004
-    }]
-}
-`
 )
 
 func handleFuncRemoveSubject(t *testing.T) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
+		var responsePath string
 
 		defer r.Body.Close()
-		body := make(map[string]interface{})
-
-		b, rErr := ioutil.ReadAll(r.Body)
-		if rErr != nil {
-			t.Error(rErr)
-		}
-
-		uErr := json.Unmarshal(b, &body)
-		if uErr != nil {
-			t.Error(rErr)
+		body, err := requestBody(r.Body)
+		if err != nil {
+			t.Error(err)
+			return
 		}
 
 		if successSubjectRequest(body) {
 			_, ok := body["face_id"]
 			if ok {
-				fmt.Fprint(w, removeSubjectWithFaceSuccess)
+				responsePath = "gallery/remove_subject_with_face.json"
 			} else {
-				fmt.Fprint(w, removeSubjectSuccess)
+				responsePath = "gallery/remove_subject.json"
 			}
 		} else {
+			responsePath = "gallery/remove_subject_error.json"
+		}
 
-			fmt.Fprint(w, removeSubjectError)
+		err = makeResponse(w, responsePath)
+		if err != nil {
+			t.Error(err)
 		}
 	}
 }
@@ -73,94 +48,63 @@ func successSubjectRequest(body map[string]interface{}) bool {
 		body["subject_id"] == removeSubjectExistID)
 }
 
-func Test_RemoveSubject_Success(t *testing.T) {
+func Test_RemoveSubject(t *testing.T) {
 	setup()
 	defer teardown()
 
 	mux.HandleFunc("/gallery/remove_subject", handleFuncRemoveSubject(t))
 
-	responseSubject, err := client.RemoveSubject(&kairgo.RemoveSubjectRequest{
-		SubjectID:   removeSubjectExistID,
-		GalleryName: removeSubjectExistName,
-	})
-	if err != nil {
-		t.Error(err)
-		return
+	tests := []struct {
+		removeSubjectRequest kairgo.RemoveSubjectRequest
+		status               string
+		errorsCount          int
+		errCode              int
+		errorMessage         string
+	}{
+		{
+			removeSubjectRequest: kairgo.RemoveSubjectRequest{
+				GalleryName: "MyGallery",
+				SubjectID:   "test1",
+			},
+			status:       "Complete",
+			errorsCount:  0,
+			errCode:      0,
+			errorMessage: "",
+		},
+		{
+			removeSubjectRequest: kairgo.RemoveSubjectRequest{
+				GalleryName: "MyGallery",
+				SubjectID:   "test1",
+				FaceID:      "58f9034743ab64939482",
+			},
+			status:       "Complete",
+			errorsCount:  0,
+			errCode:      0,
+			errorMessage: "",
+		},
+		{
+			removeSubjectRequest: kairgo.RemoveSubjectRequest{
+				GalleryName: "MyGallery",
+				SubjectID:   "test2",
+			},
+			status:       "",
+			errorsCount:  1,
+			errCode:      5004,
+			errorMessage: "gallery name not found",
+		},
 	}
 
-	status := responseSubject.Status
-	message := responseSubject.Message
-
-	if status != "Complete" {
-		t.Errorf("Expected '%s', but actual: '%s'", "Complete", status)
-	}
-
-	if message != "subject id test1 has been successfully removed" {
-		t.Errorf("Expected '%s', but actual: '%s'", "subject id test1 has been successfully removed", message)
-	}
-
-	errorsCount := len(responseSubject.Errors)
-	if errorsCount != 0 {
-		t.Errorf("Expected %d, but actual: %d", 0, errorsCount)
-	}
-}
-
-func Test_RemoveSubjectWithFaceID_Success(t *testing.T) {
-	setup()
-	defer teardown()
-
-	mux.HandleFunc("/gallery/remove_subject", handleFuncRemoveSubject(t))
-
-	responseSubject, err := client.RemoveSubject(&kairgo.RemoveSubjectRequest{
-		SubjectID:   removeSubjectExistID,
-		GalleryName: removeSubjectExistName,
-		FaceID:      removeSubjectFaceId,
-	})
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	status := responseSubject.Status
-	message := responseSubject.Message
-
-	if status != "Complete" {
-		t.Errorf("Expected '%s', but actual: '%s'", "Complete", status)
-	}
-
-	if message != "subject id test1 with face id 58f9034743ab64939482 has been successfully removed" {
-		t.Errorf("Expected '%s', but actual: '%s'", "subject id test1 with face id 58f9034743ab64939482 has been successfully removed", message)
-	}
-
-	errorsCount := len(responseSubject.Errors)
-	if errorsCount != 0 {
-		t.Errorf("Expected %d, but actual: %d", 0, errorsCount)
-	}
-}
-
-func Test_RemoveSubject_Fail(t *testing.T) {
-	setup()
-	defer teardown()
-
-	mux.HandleFunc("/gallery/remove_subject", handleFuncRemoveSubject(t))
-
-	responseSubject, err := client.RemoveSubject(&kairgo.RemoveSubjectRequest{
-		SubjectID:   "WrongSubjectID",
-		GalleryName: removeSubjectExistName,
-	})
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	status := responseSubject.Status
-
-	if status != "" {
-		t.Errorf("Expected '%s', but actual: '%s'", "", status)
-	}
-
-	errorsCount := len(responseSubject.Errors)
-	if errorsCount == 0 {
-		t.Errorf("Expected %d, but actual: %d", 1, errorsCount)
+	for _, test := range tests {
+		result, err := client.RemoveSubject(&test.removeSubjectRequest)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		assert.Equal(t, test.status, result.Status)
+		assert.Equal(t, test.errorsCount, len(result.Errors))
+		if test.errorsCount > 0 {
+			assert.Equal(t, test.errCode, result.Errors[0].ErrCode)
+			assert.Equal(t, test.errorMessage, result.Errors[0].Message)
+		}
 	}
 }

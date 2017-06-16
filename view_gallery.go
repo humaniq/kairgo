@@ -19,22 +19,13 @@ func (k *Kairos) ViewGallery(galleryName string) (*ResponseGallery, error) {
 		return nil, fmt.Errorf("galleryName: should be present")
 	}
 
-	p := make(map[string]interface{})
-	p["gallery_name"] = galleryName
-
-	b, mErr := json.Marshal(p)
-	if mErr != nil {
-		return nil, mErr
+	p := map[string]interface{}{
+		"gallery_name": galleryName,
 	}
 
-	req, reqErr := k.newRequest("POST", "gallery/view", b)
-	if reqErr != nil {
-		return nil, reqErr
-	}
-
-	resp, doErr := k.do(req)
-	if doErr != nil {
-		return nil, doErr
+	resp, err := k.makeRequest("POST", "gallery/view", p)
+	if err != nil {
+		return nil, err
 	}
 
 	re := &ResponseGallery{}
