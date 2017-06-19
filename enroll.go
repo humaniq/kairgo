@@ -45,8 +45,13 @@ func (k *Kairos) Enroll(image, subjectID, galleryName, minHeadScale string, mult
 	p["gallery_name"] = galleryName
 
 	// optional parameters
-	p["minHeadScale"] = minHeadScale
-	p["multiple_faces"] = multipleFaces
+	if minHeadScale != "" {
+		p["minHeadScale"] = minHeadScale
+	}
+
+	if multipleFaces != false {
+		p["multiple_faces"] = multipleFaces
+	}
 
 	b, mErr := json.Marshal(p)
 	if mErr != nil {

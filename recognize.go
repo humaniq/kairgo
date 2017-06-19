@@ -34,9 +34,20 @@ func (k *Kairos) Recognize(image, galleryName, minHeadScale, threshold string, m
 	p["gallery_name"] = galleryName
 
 	// optional parameters
-	p["minHeadScale"] = minHeadScale
-	p["threshold"] = threshold
-	p["max_num_results"] = maxNumResults
+	if minHeadScale != "" {
+		p["minHeadScale"] = minHeadScale
+
+	}
+
+	if threshold != "" {
+		p["threshold"] = threshold
+
+	}
+
+	if maxNumResults != 0 {
+
+		p["max_num_results"] = maxNumResults
+	}
 
 	b, mErr := json.Marshal(p)
 	if mErr != nil {
