@@ -1,0 +1,17 @@
+{
+  "images": [
+    {
+      "transaction": {
+        "status": "success",
+        "subject_id": "Elizabeth",
+        "quality": 0.84705,
+        "width": 170,
+        "height": 287,
+        "topLeftX": 108,
+        "topLeftY": 55,
+        "confidence": 0.88309,
+        "gallery_name": "MyGallery"
+      }
+    }
+  ]
+}
