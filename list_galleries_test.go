@@ -1,19 +1,8 @@
 package kairgo_test
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
-)
-
-const (
-	listGalleriesData = ` {"status": "Complete",
-			       "gallery_ids": [
-				 "MyGallery",
-				 "testgallery1",
-				 "testgallery2",
-				 "testgallery3",
-				 "testgallery4"]}`
 )
 
 func Test_ListGalleries(t *testing.T) {
@@ -22,7 +11,12 @@ func Test_ListGalleries(t *testing.T) {
 
 	handleFun := func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
-		fmt.Fprint(w, listGalleriesData)
+		defer r.Body.Close()
+
+		err := makeResponse(w, "gallery/list_all.json")
+		if err != nil {
+			t.Error(err)
+		}
 	}
 	mux.HandleFunc("/gallery/list_all", handleFun)
 

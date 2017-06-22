@@ -1,0 +1,43 @@
+{
+    "images": [
+        {
+            "status": "Complete",
+            "width": 1536,
+            "height": 2048,
+            "file": "kairos-elizabeth.jpg",
+            "faces": [
+                {
+                    "topLeftX": 390,
+                    "topLeftY": 706,
+                    "chinTipX": 780,
+                    "rightEyeCenterX": 587,
+                    "yaw": -3,
+                    "chinTipY": 1548,
+                    "confidence": 0.99997,
+                    "height": 780,
+                    "rightEyeCenterY": 904,
+                    "width": 781,
+                    "leftEyeCenterY": 907,
+                    "leftEyeCenterX": 955,
+                    "pitch": -17,
+                    "attributes": {
+                        "lips": "Together",
+                        "asian": 0.25658,
+                        "gender": {
+                            "type": "F"
+                        },
+                        "age": 26,
+                        "hispanic": 0.41825,
+                        "other": 0.11144,
+                        "black": 0.16007,
+                        "white": 0.05365,
+                        "glasses": "None"
+                    },
+                    "face_id": 1,
+                    "quality": 0.79333,
+                    "roll": -1
+                }
+            ]
+        }
+    ]
+}

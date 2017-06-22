@@ -27,7 +27,8 @@ type ResponseRecognize struct {
 	} `json:"images"`
 }
 
-// Recognize an image
+// Recognize takes a photo, finds the faces within it,
+// and tries to match them against the faces you have already enrolled into a gallery.
 func (k *Kairos) Recognize(image, galleryName, minHeadScale, threshold string, maxNumResults int) (*ResponseRecognize, error) {
 	p := make(map[string]interface{})
 	p["image"] = image

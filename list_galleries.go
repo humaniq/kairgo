@@ -8,7 +8,7 @@ type ResponseListGalleries struct {
 	GalleryIDs  []string `json:"gallery_ids"`
 }
 
-// ListGalleries ...
+// ListGalleries lists out all of the galleries you have created.
 func (k *Kairos) ListGalleries() (*ResponseListGalleries, error) {
 	req, reqErr := k.newRequest("POST", "gallery/list_all", nil)
 	if reqErr != nil {
